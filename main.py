@@ -1,16 +1,25 @@
-# This is a sample Python script.
-
-# Press Alt+Shift+X to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+import requests
+from lxml import etree
 
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+Shift+B to toggle the breakpoint.
+# 解析一页html
+def parseHtmlPage(url):
+    html = requests.get(url).text
+    dom = etree.HTML(html)
+    divList = dom.xpath('/html/body/div[4]')[0]
+
+    videoIdList = []
+
+    for div in divList:
+        if len(div) == 1:
+            continue
+        videoList = div[1][0]
+        for video in videoList:
+            videoIdList.append(video[0].get('href')[6:15])
+    return videoIdList
 
 
-# Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    print_hi('PyCharm')
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+    for page in range(1, 7):
+        videoIdList = parseHtmlPage("https://v.huya.com/u/1428788783/livevideo.html?p=" + str(page))
+        print(videoIdList)
