@@ -163,7 +163,7 @@ def submitMission(mission):
             finishCount = finishCount + 1
     # 下载完成度
     percent = round(finishCount / len(missionList) * 100, 2)
-    print(str(percent) + '% ' + finishCount + '/' + len(missionList), end='')
+    print(str(percent) + '% ' + str(finishCount) + '/' + str(len(missionList)), end='')
     # 释放锁
     threadLock.release()
 
@@ -215,7 +215,7 @@ def download(m3u8Url, savePath, filename):
     # 文件分隔符替换
     savePath = savePath.replace('\\', '/')
     # 获得碎片缓存文件夹路径
-    pieceCachePath = getPieceCachePath(savePath, filename + '_cache')
+    pieceCachePath = getPieceCachePath(savePath, filename + '-cache')
     baseUrl = getBaseUrl(m3u8Url)
     # 拿到下载文件URL列表
     pieceUrlList = getPieceUrlList(baseUrl, m3u8Url, pieceCachePath)

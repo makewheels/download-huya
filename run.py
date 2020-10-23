@@ -1,3 +1,4 @@
+import datetime
 import json
 
 import requests
@@ -25,9 +26,6 @@ def parseHtmlPage(url):
     return videoIdList
 
 
-savePath = 'D:\\huya-download'
-filename = 'asudeeenm.mp4'
-
 if __name__ == '__main__':
     for page in range(1, 7):
         videoIdList = parseHtmlPage("https://v.huya.com/u/1428788783/livevideo.html?p=" + str(page))
@@ -38,9 +36,10 @@ if __name__ == '__main__':
             jsonText = jsonText.replace('jQuery112407112155431315372_1603350254420(', '')
             jsonText = jsonText[0:len(jsonText) - 1]
             download_message = json.loads(jsonText)
+
+            ustime = int(download_message['result']['ustime'])
+            timeString = datetime.datetime.fromtimestamp(ustime).strftime("%Y-%m-%d-%H-%M-%S")
             items = download_message['result']['items']
             item = items[len(items) - 1]
             m3u8_url = item['transcode']['urls'][0]
-            m3u8Downloader.download(m3u8_url, savePath, filename)
-            break
-        break
+            m3u8Downloader.download(m3u8_url, 'D:\\huya-download', timeString + '.mp4')
