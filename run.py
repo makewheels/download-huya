@@ -26,7 +26,7 @@ def parseHtmlPage(url):
 
 
 savePath = 'D:\\huya-download'
-filename = 'fffff.ts'
+filename = 'asudeeenm.mp4'
 
 if __name__ == '__main__':
     for page in range(1, 7):

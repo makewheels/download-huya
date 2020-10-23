@@ -13,10 +13,13 @@ def getBaseUrl(m3u8Url):
 
 # 发请求获取m3u8碎片列表
 def getPieceUrlList(baseUrl, m3u8Url, pieceCachePath):
-    m3u8File = requests.get(m3u8Url).text
+    m3u8Text = requests.get(m3u8Url).text
     # 保存m3u8文件
+    m3u8File = open(pieceCachePath + "/playList.m3u8", 'w')
+    m3u8File.write(m3u8Text)
+    m3u8File.close()
 
-    lines = m3u8File.splitlines()
+    lines = m3u8Text.splitlines()
     pieceUrlList = []
     # 保存文件列表
     # tsFileList = open(pieceCachePath + '/tsFileList.txt', 'w')
@@ -65,40 +68,34 @@ def downloadSingleFile(url, path):
 
 # 合并碎片
 def mergePieces(fPath, pCachePath, pieceUrlList):
-    # 执行合并
-    finalFile = open(fPath, 'wb')
-    # 遍历每个碎片
-    for pieceUrl in pieceUrlList:
-        pieceFileName = pieceUrl[pieceUrl.rindex('/'), len(pieceUrl)]
-        with open(pieceFileName, 'rb') as pieceFile:
-            # current = int(os.path.basename(pieceFilePath)) + 1
-            # total = pAmount
-            # percent = round(current / total * 100, 1)
-            # print('merge piece: ' + str(current) + ' / ' + str(total) + '  ' + str(percent) + '%')
-            content = pieceFile.read()
-            finalFile.write(content)
+    # # 执行合并
+    # finalFile = open(fPath, 'wb')
+    # # 遍历每个碎片
+    # for pieceUrl in pieceUrlList:
+    #     pieceFileName = pieceUrl[pieceUrl.rindex('/'), len(pieceUrl)]
+    #     with open(pieceFileName, 'rb') as pieceFile:
+    #         # current = int(os.path.basename(pieceFilePath)) + 1
+    #         # total = pAmount
+    #         # percent = round(current / total * 100, 1)
+    #         # print('merge piece: ' + str(current) + ' / ' + str(total) + '  ' + str(percent) + '%')
+    #         content = pieceFile.read()
+    #         finalFile.write(content)
 
-    # cmd = 'ffmpeg -y -i \"concat:'
-    # for pieceFilePath in pieceFilePathList:
-    #     cmd = cmd + pieceFilePath + '|'
-    # cmd = cmd + '\" -acodec copy -vcodec copy -absf aac_adtstoasc ' + fPath.replace('\\', '/')
-    # print(cmd)
-    # os.system(cmd)
+    #  ffmpeg.exe -i playList.m3u8 -vcodec copy -acodec copy out.mp4
 
-    # ffmpeg -i "index.m3u8" -codec copy output.mp4
-    # cmd = "ffmpeg -y -f concat -i " + pCachePath + "/\"tsFileList.txt\" -c copy " + fPath
-    # print(cmd)
-    # os.system(cmd)
-
+    # 使用ffmpeg最科学的方法合并
+    os.system("ffmpeg -i \"" + pCachePath + "\"/playList.m3u8 -vcodec copy -acodec copy \"" + fPath + "\"")
     # 删除碎片
     for mission in missionList:
         tsPath = mission['path']
         os.remove(tsPath)
         print("delete ts piece: " + tsPath)
-    # 删除tsFileList文件
-    os.remove(pCachePath + '/tsFileList.txt')
+    # 删除m3u8文件
+    os.remove(pCachePath + '/playList.m3u8')
+    print("delete playList.m3u8")
     # 删除缓存文件夹
     os.rmdir(pCachePath)
+    print("delete pCachePath")
     print('merge ts pieces finish')
 
 
@@ -165,8 +162,8 @@ def submitMission(mission):
         if mission['state'] == 2:
             finishCount = finishCount + 1
     # 下载完成度
-    percent = round(finishCount / len(missionList) * 100, 1)
-    print(str(percent) + '%', end='')
+    percent = round(finishCount / len(missionList) * 100, 2)
+    print(str(percent) + '% ' + finishCount + '/' + len(missionList), end='')
     # 释放锁
     threadLock.release()
 
@@ -182,7 +179,7 @@ class DownloadThread(threading.Thread):
         # 获取任务
         mission = getPieceMission()
         # 循环接新任务，如果有任务
-        while mission != None:
+        while mission is not None:
             # 执行下载
             print(threading.currentThread().getName() + ' downloading ' + str(mission['index']) + " " + mission['path'])
             downloadSingleFile(mission['url'], mission['path'])
