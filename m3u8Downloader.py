@@ -84,7 +84,9 @@ def mergePieces(fPath, pCachePath, pieceUrlList):
     #  ffmpeg.exe -i playList.m3u8 -vcodec copy -acodec copy out.mp4
 
     # 使用ffmpeg最科学的方法合并
-    os.system("ffmpeg -i \"" + pCachePath + "\"/playList.m3u8 -vcodec copy -acodec copy \"" + fPath + "\"")
+    cmd = "ffmpeg -y -i \"" + pCachePath + "\"/playList.m3u8 -vcodec copy -acodec copy \"" + fPath + "\""
+    print(cmd)
+    os.system(cmd)
     # 删除碎片
     for mission in missionList:
         tsPath = mission['path']
