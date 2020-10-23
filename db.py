@@ -9,6 +9,6 @@ def getMysqlConnect():
         port=3306,
         user="root",
         passwd="mysqlmima123",
-        db="douyu_download",
+        db="huya_download",
         charset='utf8'
     )
