@@ -64,17 +64,13 @@ def downloadSingleFile(url, path):
 
 
 # 合并碎片
-def mergePieces(fPath, pCachePath):
-    pAmount = len(missionList)
-    # 先拿到碎片文件列表
-    pieceFilePathList = []
-    for i in range(0, pAmount):
-        pieceFilePathList.append(pCachePath + '/' + str(i))
+def mergePieces(fPath, pCachePath, pieceUrlList):
     # 执行合并
     finalFile = open(fPath, 'wb')
     # 遍历每个碎片
-    for pieceFilePath in pieceFilePathList:
-        with open(pieceFilePath, 'rb') as pieceFile:
+    for pieceUrl in pieceUrlList:
+        pieceFileName = pieceUrl[pieceUrl.rindex('/'), len(pieceUrl)]
+        with open(pieceFileName, 'rb') as pieceFile:
             # current = int(os.path.basename(pieceFilePath)) + 1
             # total = pAmount
             # percent = round(current / total * 100, 1)
@@ -125,7 +121,6 @@ def initDownloadMission(pieceUrlList, pieceCachePath):
     progress['downloadBytes'] = 0
     progress['startTime'] = time.time()
     for index, pieceUrl in enumerate(pieceUrlList):
-        # 这里改一下ts碎片文件名，按照m3u8索引文件里的名字来
         filename = pieceUrl.replace(getBaseUrl(pieceUrl), '')
         missionList.append({
             'index': index,
@@ -174,14 +169,6 @@ def submitMission(mission):
     print(str(percent) + '%', end='')
     # 释放锁
     threadLock.release()
-
-
-# 所有任务已完成
-def onAllMissionsFinished():
-    print('onAllMissionsFinished')
-    # mergePieces()
-    # 开启新线程合并碎片
-    # _thread.start_new_thread(mergePieces,())
 
 
 # 多线程下载类
@@ -254,5 +241,5 @@ def download(m3u8Url, savePath, filename):
         t.join()
 
     print('------thread finish------')
-    mergePieces(finalFilePath, pieceCachePath)
+    mergePieces(finalFilePath, pieceCachePath, pieceUrlList)
     missionList.clear()
