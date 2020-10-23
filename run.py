@@ -26,10 +26,35 @@ def parseHtmlPage(url):
     return videoIdList
 
 
+def checkVideoId(baseFolderPath, videoId):
+    file = open(baseFolderPath + "/downloaded-video-id-list.txt")
+    while True:
+        line = file.readline()
+        line = line[0:len(line) - 1]
+        if line == videoId:
+            file.close()
+            return True
+        elif not line:
+            file.close()
+            return False
+
+
+def saveNewVideoId(videoId):
+    file = open(baseFolderPath + "/downloaded-video-id-list.txt", "a")
+    file.write(videoId + "\n")
+    file.close()
+
+
 if __name__ == '__main__':
+    baseFolderPath = 'D:\\huya-download'
     for page in range(1, 7):
         videoIdList = parseHtmlPage("https://v.huya.com/u/1428788783/livevideo.html?p=" + str(page))
         for videoId in videoIdList:
+            # 先检查本地存的videoId，如果已经有了，则跳过
+            result = checkVideoId(baseFolderPath, videoId)
+            if result:
+                continue
+            print(videoId)
             jsonText = requests.get(
                 "https://v-api-player-ssl.huya.com/?callback=jQuery112407112155431315372_1603350254420&r=vhuyaplay%2Fvideo&vid="
                 + videoId + "&format=mp4%2Cm3u8&_=1603350254446").text
@@ -38,8 +63,11 @@ if __name__ == '__main__':
             download_message = json.loads(jsonText)
 
             ustime = int(download_message['result']['ustime'])
-            timeString = datetime.datetime.fromtimestamp(ustime).strftime("%Y-%m-%d-%H-%M-%S")
+            timeString = datetime.datetime.fromtimestamp(ustime).strftime("%Y-%m-%d_%H-%M-%S")
             items = download_message['result']['items']
             item = items[len(items) - 1]
             m3u8_url = item['transcode']['urls'][0]
-            m3u8Downloader.download(m3u8_url, 'D:\\huya-download', timeString + '.mp4')
+            m3u8Downloader.download(m3u8_url, baseFolderPath, timeString + '_' + videoId + '.mp4')
+
+            # 当下载完成时，将videoId写入文件
+            saveNewVideoId(videoId)
