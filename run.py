@@ -66,16 +66,15 @@ def downloadSingleVideo(videoId):
 
 
 if __name__ == '__main__':
-    # for page in range(7, 1, -1):
-    #     videoIdStringList = parseHtmlPage("https://v.huya.com/u/1428788783/livevideo.html?p=" + str(page))
-    #     videoIdList = []
-    #     for videoIdString in videoIdStringList:
-    #         videoIdList.append(int(videoIdString))
-    #     videoIdList = sorted(videoIdList)
-    #     for videoId in videoIdList:
-    #         # 先检查本地存的videoId，如果已经有了，则跳过
-    #         result = checkVideoId(baseFolderPath, videoId)
-    #         if result:
-    #             continue
-    #         downloadSingleVideo(videoId)
-    downloadSingleVideo(381833223)
+    for page in range(7, 1, -1):
+        videoIdStringList = parseHtmlPage("https://v.huya.com/u/1428788783/livevideo.html?p=" + str(page))
+        videoIdList = []
+        for videoIdString in videoIdStringList:
+            videoIdList.append(int(videoIdString))
+        videoIdList = sorted(videoIdList)
+        for videoId in videoIdList:
+            # 先检查本地存的videoId，如果已经有了，则跳过
+            result = checkVideoId(baseFolderPath, str(videoId))
+            if result:
+                continue
+            downloadSingleVideo(videoId)
