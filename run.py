@@ -1,6 +1,5 @@
 import datetime
 import json
-
 import requests
 from lxml import etree
 
@@ -66,8 +65,10 @@ def downloadSingleVideo(videoId):
 
 
 if __name__ == '__main__':
-    for page in range(7, 1, -1):
-        videoIdStringList = parseHtmlPage("https://v.huya.com/u/1428788783/livevideo.html?p=" + str(page))
+    for page in range(7, 0, -1):
+        url = "https://v.huya.com/u/1428788783/livevideo.html?p=" + str(page)
+        print(url)
+        videoIdStringList = parseHtmlPage(url)
         videoIdList = []
         for videoIdString in videoIdStringList:
             videoIdList.append(int(videoIdString))
